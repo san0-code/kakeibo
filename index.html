@@ -84,19 +84,33 @@
         }
 
         function updateDisplay() {
-            document.getElementById('balance').innerText = currentBalance.toLocaleString();
-            const historyElement = document.getElementById('history');
-            historyElement.innerHTML = '';
-            historyData.forEach(item => {
-                const html = `
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border-l-4 ${item.type === 'minus' ? 'border-red-400' : 'border-[#A8D8B9]'}">
-                        <span class="font-bold text-sm">${item.type === 'minus' ? '支出' : '収入'}</span>
-                        <span class="font-bold ${item.type === 'minus' ? 'text-red-400' : 'text-[#A8D8B9]'}">¥${item.amount.toLocaleString()}</span>
-                    </div>`;
-                historyElement.insertAdjacentHTML('beforeend', html);
-            });
-        }
-    </script>
+    const balanceElement = document.getElementById('balance');
+    
+    // 1. 残高を表示する
+    balanceElement.innerText = currentBalance.toLocaleString();
+    
+    // 2. 【NEW】条件によって色を変える
+    if (currentBalance < 0) {
+        // マイナスの時：赤色にする
+        balanceElement.style.color = "#ef4444"; // Tailwindの赤
+    } else {
+        // 0以上の時：緑色にする
+        balanceElement.style.color = "#10b981"; // Tailwindの緑
+    }
+
+    // 履歴の表示（ここは前と同じ）
+    const historyElement = document.getElementById('history');
+    historyElement.innerHTML = '';
+    historyData.forEach(item => {
+        const html = `
+            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border-l-4 ${item.type === 'minus' ? 'border-red-400' : 'border-[#A8D8B9]'}">
+                <span class="font-bold text-sm">${item.type === 'minus' ? '支出' : '収入'}</span>
+                <span class="font-bold ${item.type === 'minus' ? 'text-red-400' : 'text-[#A8D8B9]'}">¥${item.amount.toLocaleString()}</span>
+            </div>`;
+        historyElement.insertAdjacentHTML('beforeend', html);
+    });
+}
 </body>
 </html>
+
 
