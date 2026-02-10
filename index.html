@@ -15,18 +15,30 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        /* ボタンをタップした時のアニメーション */
+        .progress-bar-fill {
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
         .btn-active:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body class="bg-tokyo text-slate-800 min-h-screen">
-    <div class="max-w-md mx-auto min-h-screen flex flex-col p-4">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col p-4 pb-12">
         
-        <header class="glass-card rounded-[32px] p-8 text-center shadow-2xl mt-4 mb-6">
+        <header class="glass-card rounded-[32px] p-8 text-center shadow-2xl mt-4 mb-6 relative overflow-hidden">
             <p class="text-[11px] text-slate-400 font-bold tracking-[0.3em] uppercase mb-4">Distance to Tokyo</p>
-            <div class="flex justify-center items-baseline gap-2">
+            <div class="flex justify-center items-baseline gap-2 mb-6">
                 <span class="text-2xl font-bold text-slate-300">¥</span>
                 <h1 id="balance" class="text-5xl font-extrabold tracking-tighter font-money">-1,000,000</h1>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                    <span>Progress</span>
+                    <span id="percentText">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-50">
+                    <div id="progressBar" class="progress-bar-fill h-full bg-[#A8D8B9] shadow-[0_0_10px_rgba(168,216,185,0.5)]" style="width: 0%"></div>
+                </div>
             </div>
         </header>
 
@@ -64,7 +76,6 @@
 
         updateDisplay();
 
-        // 【NEW】ボタンを押した時に金額をセットする命令
         function setAmount(val) {
             document.getElementById('amount').value = val;
         }
@@ -106,6 +117,14 @@
             const balanceElement = document.getElementById('balance');
             balanceElement.innerText = currentBalance.toLocaleString();
             balanceElement.style.color = currentBalance < 0 ? "#f87171" : "#34d399";
+
+            // ★進捗の計算（初期借金額1,000,000円を基準に、0円になったら100%）
+            const initialDebt = 1000000;
+            let progress = ((initialDebt + currentBalance) / initialDebt) * 100;
+            progress = Math.min(Math.max(progress, 0), 100); // 0%~100%の間に収める
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('percentText').innerText = Math.floor(progress) + '%';
 
             const historyElement = document.getElementById('history');
             historyElement.innerHTML = '';
