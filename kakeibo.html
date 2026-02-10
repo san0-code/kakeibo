@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokyo Saving Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
+        
+        <header class="p-8 text-center border-b border-gray-100">
+            <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase mb-2">Current Balance</p>
+            <div class="flex justify-center items-baseline gap-1">
+                <span class="text-2xl font-bold text-gray-400">¥</span>
+                <h1 id="balance" class="text-5xl font-extrabold tracking-tight text-gray-900">120,500</h1>
+            </div>
+        </header>
+
+        <main class="p-6 space-y-6">
+            <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Amount</label>
+                <input type="number" id="amount" placeholder="0" class="w-full text-4xl font-bold p-4 bg-gray-50 rounded-2xl outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="addRecord('minus')" class="bg-gray-900 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all">支出 (-)</button>
+                <button onclick="addRecord('plus')" class="bg-[#A8D8B9] text-white py-5 rounded-2xl font-bold active:scale-95 transition-all">収入 (+)</button>
+            </div>
+
+            <div class="pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">History</h3>
+                    <button onclick="clearHistory()" class="text-[10px] font-bold text-red-400 uppercase tracking-widest hover:text-red-600 transition">
+                        Clear All
+                    </div>
+                </div>
+                <div id="history" class="space-y-3"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentBalance = parseInt(localStorage.getItem('my_balance')) || 120500;
+        let historyData = JSON.parse(localStorage.getItem('my_history')) || [];
+
+        updateDisplay();
+
+        function addRecord(type) {
+            const amountInput = document.getElementById('amount');
+            const amount = parseInt(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("金額を入力してね！");
+                return;
+            }
+
+            if (type === 'minus') {
+                currentBalance -= amount;
+            } else {
+                currentBalance += amount;
+            }
+
+            historyData.unshift({
+                type: type,
+                amount: amount,
+                date: new Date().toLocaleString()
+            });
+
+            localStorage.setItem('my_balance', currentBalance);
+            localStorage.setItem('my_history', JSON.stringify(historyData));
+
+            updateDisplay();
+            amountInput.value = '';
+        }
+
+        // ★履歴を消去する命令
+        function clearHistory() {
+            if (confirm("履歴をすべて消してもいいですか？")) {
+                historyData = [];
+                localStorage.setItem('my_history', JSON.stringify(historyData));
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('balance').innerText = currentBalance.toLocaleString();
+            const historyElement = document.getElementById('history');
+            historyElement.innerHTML = '';
+            historyData.forEach(item => {
+                const html = `
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border-l-4 ${item.type === 'minus' ? 'border-red-400' : 'border-[#A8D8B9]'}">
+                        <span class="font-bold text-sm">${item.type === 'minus' ? '支出' : '収入'}</span>
+                        <span class="font-bold ${item.type === 'minus' ? 'text-red-400' : 'text-[#A8D8B9]'}">¥${item.amount.toLocaleString()}</span>
+                    </div>`;
+                historyElement.insertAdjacentHTML('beforeend', html);
+            });
+        }
+    </script>
+</body>
+</html>
